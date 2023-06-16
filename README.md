@@ -5,7 +5,7 @@ The Forest Service is considering a proposal to place in conservancy a forest of
 
 # Story 1: In order to track wildlife sightings, as a user of the API, I need to manage animals.
 
-Branch: animal-crud-actions
+Branch: animal-crud-actions ✅
 
 Acceptance Criteria
 
@@ -89,18 +89,95 @@ scientific_binomial: "Felis Silvestris Catus"
     CHECK: postman GET localhost:3000/animals
     to see if that instance was deleted.
 
-Story 2: In order to track wildlife sightings, as a user of the API, I need to manage animal sightings.
+# Story 2: In order to track wildlife sightings, as a user of the API, I need to manage animal sightings.
 
-Branch: sighting-crud-actions
+Branch: sighting-crud-actions ✅
 
 Acceptance Criteria
 
-Create a resource for animal sightings with the following information: latitude, longitude, date
-Hint: An animal has_many sightings (rails g resource Sighting animal_id:integer ...)
-Hint: Date is written in Active Record as yyyy-mm-dd (“2022-07-28")
-Can create a new animal sighting in the database
-Can update an existing animal sighting in the database
-Can remove an animal sighting in the database
+- Create a resource for animal sightings with the following information: latitude, longitude, date ✅
+- Hint: An animal has_many sightings (rails g resource Sighting animal_id:integer ...) ✅
+- Hint: Date is written in Active Record as yyyy-mm-dd (“2022-07-28") ✅
+
+    $rails g resource Sighting latitude:string longitude:string date:string animal_id:integer
+    $rails db:migrate
+
+    Within animal.rb has_many :sightings
+    Within sighting.rb belongs_to :animal
+
+- Can create a new animal sighting in the database ✅
+
+    W/I sightings controller create a create method.
+
+```ruby
+def create
+        sighting = Sighting.create(sighting_params)
+        if sighting.valid?
+            render json: sighting
+        else
+            render json: sighting.errors
+        end
+          private
+    def sighting_params
+        params.require(:sighting).permit(:latitude, :longitude, :date, :animal_id)
+    end
+```
+    W/I postman only pass the permitted parameters within the postman syntax with POST
+
+```java
+        "latitude": "at a latitude of 34° N",
+        "longitude": "at a longitude of 4° E",
+        "date": "2023-05-15",
+        "animal_id": 3
+```
+
+- Can update an existing animal sighting in the database ✅
+
+    Within sightings controller create a new method called update.
+
+```ruby
+    def update
+        sighting = Sighting.find(params[:id])
+        sighting.update(sighting_params)
+        if sighting.valid?
+            render json: sighting
+        else
+            render json: sighting.errors
+        end
+    end
+```
+
+    Within postman only pass permitted parameters with postman syntax with PATCH. 
+    Make sure you include which id you want within the url => localhost:3000/sightings/2
+
+```java
+{
+        "latitude": "at a latitude of 32° N",
+        "longitude": "at a longitude of 115° E",
+        "date": "2023-05-15",
+        "animal_id": 3
+}
+```
+
+- Can remove an animal sighting in the database ✅
+
+    Within sighting controller create a new method destroy.
+
+```ruby
+    def destroy
+        animal = Animal.find(params[:id])
+        if animal.destroy
+            render json: animal
+        else 
+            render json: animal.error
+        end
+    end
+```
+    To check switch to GET and git rid of the /:id.
+
+    Within Postman DELETE. remember the route is an /:id. Ensure to add a primary key.
+
+
 Story 3: In order to see the wildlife sightings, as a user of the API, I need to run reports on animal sightings.
 
 Branch: animal-sightings-reports
@@ -120,7 +197,10 @@ end
 Hint: Be sure to add the start_date and end_date to what is permitted in your strong parameters method
 Hint: Utilize the params section in Postman to ease the developer experience
 Hint: Routes with params
+
+
 Stretch Challenges
+
 Story 4: In order to see the wildlife sightings contain valid data, as a user of the API, I need to include proper specs.
 
 Branch: animal-sightings-specs
