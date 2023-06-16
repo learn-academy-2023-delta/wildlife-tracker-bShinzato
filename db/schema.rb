@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_15_231803) do
+ActiveRecord::Schema[7.0].define(version: 2023_06_16_164502) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,6 +19,15 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_15_231803) do
     t.string "scientific_binomial"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "information", force: :cascade do |t|
+    t.bigint "animal_id", null: false
+    t.bigint "sighting_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["animal_id"], name: "index_information_on_animal_id"
+    t.index ["sighting_id"], name: "index_information_on_sighting_id"
   end
 
   create_table "sightings", force: :cascade do |t|
@@ -30,4 +39,6 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_15_231803) do
     t.datetime "updated_at", null: false
   end
 
+  add_foreign_key "information", "animals"
+  add_foreign_key "information", "sightings"
 end
