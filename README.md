@@ -178,25 +178,76 @@ def create
     Within Postman DELETE. remember the route is an /:id. Ensure to add a primary key.
 
 
-Story 3: In order to see the wildlife sightings, as a user of the API, I need to run reports on animal sightings.
+# Story 3: In order to see the wildlife sightings, as a user of the API, I need to run reports on animal sightings.
 
-Branch: animal-sightings-reports
+Branch: animal-sightings-reports ✅
 
 Acceptance Criteria
 
-Can see one animal with all its associated sightings
-Hint: Checkout this example on how to include associated records
-Can see all the all sightings during a given time period
-Hint: Your controller can use a range to look like this:
-class SightingsController < ApplicationController
+- Can see one animal with all its associated sightings ✅
+- Hint: Checkout this example on how to include associated records ✅
+    Created a new resource called Information with animal:references sighting:references
+```ruby
+class Animal < ApplicationRecord
+    has_many :sightings, through: :information
+    has_many :information
+end
+```
+```ruby
+class Sighting < ApplicationRecord
+    # belongs_to :animal
+    has_many :animals, through: :information
+    has_many :information
+end
+```
+```ruby
+class Information < ApplicationRecord
+  belongs_to :animal
+  belongs_to :sighting
+end
+```
+    Within db/migrate/seeds give examples to run the tests.
+
+```ruby
+animal_a = Animal.create(common_name: "Black-Capped Chickadee", scientific_binomial: "Poecile Atricapillus")
+animal_b = Animal.create(common_name: "Grackle", scientific_binomial: "Quiscalus Quiscula")
+animal_c = Animal.create(common_name: "Common Starling", scientific_binomial: "Sturnus Vulgaris")
+animal_d = Animal.create(common_name: "Mourning Dove", scientific_binomial: "Zenaida Macroura")
+
+sighting_a = Sighting.create(latitude: "40.730610", longitude: "-73.935242", date:"2023-06-11", animal_id: 1)
+sighting_b = Sighting.create(latitude: "30.26715", longitude: "-97.74306", date:"2023-06-14", animal_id: 2)
+sighting_c = Sighting.create(latitude: "45.512794", longitude: "-122.679565", date:"2023-06-17", animal_id: 3)
+
+information_a = Information.create(animal: animal_a, sighting: sighting_b)
+information_b = Information.create(animal: animal_b, sighting: sighting_a)
+information_c = Information.create(animal: animal_c, sighting: sighting_a)
+information_d = Information.create(animal: animal_d, sighting: sighting_c)
+information_e = Information.create(animal: animal_a, sighting: sighting_b)
+```
+    Within postman use /information/1 to get all data of the given instance.
+    Also can run rails db:reset if you mess up your seed db. Make you put in your info before running that command.
+
+- Can see all the all sightings during a given time period✅
+- Hint: Your controller can use a range to look like this:
+- class SightingsController < ApplicationController
   def index
     sightings = Sighting.where(date: params[:start_date]..params[:end_date])
     render json: sightings
   end
 end
-Hint: Be sure to add the start_date and end_date to what is permitted in your strong parameters method
-Hint: Utilize the params section in Postman to ease the developer experience
-Hint: Routes with params
+- Hint: Be sure to add the start_date and end_date to what is permitted in your strong parameters method
+- Hint: Utilize the params section in Postman to ease the developer experience
+- Hint: Routes with params
+
+```ruby
+    def index
+        sightings = Sighting.where(date: params[:start_date]..params[:end_date])
+        render json: sightings
+    end
+```
+    Within postman use PARAMS to set KEY: start date and end date. VALUE: yyyy-mm-dd. It will log all sightings in between the dates.
+    localhost:3000/sightings?state_date=2023-05-01&end_date=2023-06-25
+
 
 
 Stretch Challenges
